@@ -1,0 +1,120 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script src="https://raw.github.com/janl/mustache.js/0.7.2/mustache.js"></script>
+<style type="text/css">
+#map-canvas, #map_canvas {
+  width: 800px;
+  height: 600px;
+}
+#currentcoordinate {
+  width: 800px;
+  height: 50px;
+}
+#datatable {
+  height: 200px;
+  overflow: scroll;
+}
+.hovered td {
+  background: #ddd;
+}
+</style>
+<script>
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+function render(data) {
+  var points = data['points'];
+
+  var centerPos = new google.maps.LatLng(points[0]['lat'], points[0]['lng']);
+
+  var mapOptions = {
+    zoom: 14,
+    center: centerPos,
+    mapTypeId: google.maps.MapTypeId.TERRAIN
+  };
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+  var flightPlanCoordinates = [];
+  for (var i = 0; i < points.length; i++) {
+    var pt = points[i];
+    flightPlanCoordinates.push(
+      new google.maps.LatLng(pt['lat'], pt['lng']));
+  };
+
+  var flightPath = new google.maps.Polyline({
+    path: flightPlanCoordinates,
+    strokeColor: '#FF0000',
+    strokeOpacity: 1.0,
+    strokeWeight: 2
+  });
+
+  flightPath.setMap(map);
+
+  google.maps.event.addListener(map, 'mousemove', function(event) {
+    var myLat = event.latLng.lat();
+    var myLon = event.latLng.lng();
+
+    // FIND
+    var idx = -1;
+    var minDist = Infinity;
+    for (var i = 0; i < points.length; i++) {
+      var pt = points[i];
+      var distance = Math.sqrt( Math.pow(myLat - pt['lat'], 2) + Math.pow(myLon - pt['lng'], 2) );
+      if (distance < minDist) {
+        minDist = distance;
+        idx = i;
+      };
+    };
+    // END FIND
+
+    var point = points[idx];
+    var myLoc = "Lat: " + myLat + ", Lon: " + myLon + "<br>GLIDE: " + point.glide;
+    document.getElementById('currentcoordinate').innerHTML = myLoc;
+
+    var obj = document.getElementById('drow' + idx);
+    var div = document.getElementById('datatable');
+
+    //div.scrollTop = obj.scrollHeight * idx;
+
+    obj.scrollIntoView();
+
+    console.log(div);
+    console.log(obj);
+  });
+};
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+    <div id="currentcoordinate"></div>
+    <div id="datatable"></div>
+
+ <script>
+$(document).ready(function() {
+  var qs = getUrlVars();
+
+  $.getJSON('/data?path=' + qs['path'], function(data) {
+    render(data);
+
+    var output = Mustache.render('<table><thead><tr><th>Time</th><th>Lat</th><th>Lng</th><th>Glide</th></tr></thead><tbody>{{#points}}<tr id="drow{{i}}"><td>{{ts}}</td><td>{{lat}}</td><td>{{lng}}</td><td>{{glide}}</td></tr>{{/points}}</tbody></table>', data);
+
+    document.getElementById('datatable').innerHTML = output;
+});
+});
+</script>
+</body>
+</html>
