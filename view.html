@@ -9,12 +9,14 @@
 #map-canvas, #map_canvas {
   width: 800px;
   height: 600px;
+  float: left;
 }
 #currentcoordinate {
-  width: 800px;
-  height: 50px;
+  float: left;
 }
 #datatable {
+  clear: both;
+  width: 100%;
   height: 200px;
   overflow: scroll;
 }
@@ -33,6 +35,29 @@ function getUrlVars() {
         vars[hash[0]] = hash[1];
     }
     return vars;
+}
+
+function pointDistance(x1, x2, y1, y2) {
+  return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+}
+
+// This is inefficient and should be rewritten.
+function pointIdxAtMouse(points, latLng) {
+  var lat = latLng.lat();
+  var lng = latLng.lng();
+
+  var idx = -1;
+  var minDist = Infinity;
+  for (var i = 0; i < points.length; i++) {
+    var pt = points[i];
+    var distance = pointDistance(lat, pt['lat'], lng, pt['lng']);
+    if (distance < minDist) {
+      minDist = distance;
+      idx = i;
+    };
+  };
+
+  return idx;
 }
 
 function render(data) {
@@ -65,35 +90,19 @@ function render(data) {
   flightPath.setMap(map);
 
   google.maps.event.addListener(map, 'mousemove', function(event) {
-    var myLat = event.latLng.lat();
-    var myLon = event.latLng.lng();
-
-    // FIND
-    var idx = -1;
-    var minDist = Infinity;
-    for (var i = 0; i < points.length; i++) {
-      var pt = points[i];
-      var distance = Math.sqrt( Math.pow(myLat - pt['lat'], 2) + Math.pow(myLon - pt['lng'], 2) );
-      if (distance < minDist) {
-        minDist = distance;
-        idx = i;
-      };
-    };
-    // END FIND
-
+    var idx = pointIdxAtMouse(points, event.latLng);
     var point = points[idx];
-    var myLoc = "Lat: " + myLat + ", Lon: " + myLon + "<br>GLIDE: " + point.glide;
-    document.getElementById('currentcoordinate').innerHTML = myLoc;
+
+    var pretty = "Time: " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL: " + point.h_msl + "<br>velF: " + point.vel_f + "<br>velD: " + point.vel_d + "<br>Glide:" + point.glide;
+
+    pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lon (mouse): " + event.latLng.lng() + "<br>";
+
+    document.getElementById('currentcoordinate').innerHTML = pretty;
 
     var obj = document.getElementById('drow' + idx);
     var div = document.getElementById('datatable');
 
-    //div.scrollTop = obj.scrollHeight * idx;
-
     obj.scrollIntoView();
-
-    console.log(div);
-    console.log(obj);
   });
 };
     </script>
