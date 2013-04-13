@@ -169,24 +169,34 @@ class Server(object):
 
         s = ''
         if path == '/':
+            s += file('web/index.html').read()
 
-            s += '<h1>Flajt</h1>'
+        elif path == '/view':
+            s += file('web/view.html').read()
 
+        elif path == '/index':
+            recordings = []
             for recording in traverse(self.options.data):
                 recording.open()
 
-                prob = ''
-                if recording.start or recording.stop:
-                    prob = '<strong>%s</strong>' % len(recording.points)
-                else:
-                    prob = '%s' % len(recording.points)
+                recordings.append({
+                        'path': recording.path,
+                        'name': recording.name,
+                        'num': len(recording.points),
+                        'prob': recording.start or recording.stop
+                        })
 
-                s += '<a href="/view?path=%s">%s</a> (%s)<br>' % (
-                    recording.path, recording.name, prob)
+            ret = {
+                'recordings': recordings
+                }
+
+            s += json.dumps(ret)
 
         elif path == '/data':
             path = query_dict['path']
 
+            # simplest possible security: only allow reading
+            # files returned by traverse()
             found = False
             for recording in traverse(self.options.data):
                 if recording.path == path:
@@ -218,10 +228,6 @@ class Server(object):
                 }
 
             s += json.dumps(ret)
-
-        elif path == '/view':
-
-            s += file('web/view.html').read()
 
         return [s]
 

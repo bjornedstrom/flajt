@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>Flajt</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://raw.github.com/janl/mustache.js/0.7.2/mustache.js"></script>
+<style type="text/css">
+#index {
+  clear: both;
+  width: 100%;
+}
+#footer {
+  clear: both;
+}
+.idxnumstrong {
+  font-weight: bold;
+}
+</style>
+<script>
+function getUrlVars() {
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for(var i = 0; i < hashes.length; i++) {
+    hash = hashes[i].split('=');
+    vars.push(hash[0]);
+    vars[hash[0]] = hash[1];
+  }
+  return vars;
+}
+</script>
+</head>
+<body>
+<h1>Flajt Index</h1>
+
+<div id="index"></div>
+
+<p>Entries marked in <b>bold</b> are probably interesting recordings.</p>
+
+<div id="footer"></div>
+
+<script>
+$(document).ready(function() {
+  $.getJSON('/index', function(data) {
+    var output = Mustache.render('{{#recordings}}\
+<span class="idxnum{{#prob}}strong{{/prob}}"><a href="/view?path={{path}}">{{name}}</a> ({{num}})</span><br>\
+{{/recordings}}', data);
+
+    document.getElementById('index').innerHTML = output;
+  });
+
+  var footer = "<br><br>Flajt 0.0.1";
+  document.getElementById('footer').innerHTML = footer;
+});
+</script>
+</body>
+</html>
