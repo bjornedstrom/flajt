@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2013 Björn Edström <be@bjrn.se>
+# See LICENSE for details.
+
+"""Main program.
+
+Some resources:
+
+flysight:
+http://flysight.ca/wiki/index.php?title=File_format
+https://github.com/flysight/flysight/tree/master/FlySight
+
+google maps:
+https://developers.google.com/maps/documentation/javascript/reference
+"""
 
 import glob
 import json
@@ -8,6 +23,7 @@ import optparse
 import os
 import sys
 import urlparse
+
 
 class Point(object):
     """A single data point from the FlySight GPS.
@@ -184,7 +200,6 @@ class Server(object):
 
             points = []
             for i, point in enumerate(recording.points):
-                #if i >= recording.start and i <= recording.stop:
                 points.append({
                             'i': i,
                             'lat': point.lat,
