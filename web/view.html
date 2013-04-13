@@ -14,6 +14,7 @@
 }
 #currentcoordinate {
   float: left;
+  padding: 10px;
 }
 #datatable {
   clear: both;
@@ -24,11 +25,12 @@
 #footer {
   clear: both;
 }
-.hovered td {
-  background: #ddd;
-}
 </style>
 <script>
+var C_FEET = 3.28084;
+var C_KMH = 3.6;
+var C_MPH = 2.23694;
+
 function getUrlVars() {
   var vars = [], hash;
   var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -112,9 +114,24 @@ function render(data) {
     var idx = pointIdxAtMouse(points, event.latLng);
     var point = points[idx];
 
-    var pretty = "Time (UTC): " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL (m): " + point.h_msl + "<br>Forward Velocity (m/s): " + point.vel_f + "<br>Down Velocity (m/s): " + point.vel_d + "<br>Glide Ratio: " + point.glide;
+    var pretty = "Time (UTC): " + point.ts +
+      "<br><br>Lat: " + point.lat +
+      "<br>Lng: " + point.lng +
 
-    pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lng (mouse): " + event.latLng.lng() + "<br>";
+      "<br><br>hMSL (m): " + (point.h_msl).toFixed(2) +
+      "<br>hMSL (ft): " + (point.h_msl * C_FEET).toFixed(2) +
+
+      "<br><br>Forward Vel. (m/s): " + (point.vel_f).toFixed(2) +
+      "<br>Forward Vel. (km/h): " + (point.vel_f * C_KMH).toFixed(2) +
+      "<br>Forward Vel. (mph): " + (point.vel_f * C_MPH).toFixed(2) +
+
+      "<br><br>Down Vel. (m/s): " + (point.vel_d).toFixed(2) +
+      "<br>Down Vel. (km/h): " + (point.vel_d * C_KMH).toFixed(2) +
+      "<br>Down Vel. (mph): " + (point.vel_d * C_MPH).toFixed(2) +
+
+      "<br><br>Glide Ratio: " + (point.glide).toFixed(4);
+
+    //pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lng (mouse): " + event.latLng.lng() + "<br>";
 
     document.getElementById('currentcoordinate').innerHTML = pretty;
 
