@@ -20,6 +20,9 @@
   height: 200px;
   overflow: scroll;
 }
+#footer {
+  clear: both;
+}
 .hovered td {
   background: #ddd;
 }
@@ -102,9 +105,9 @@ function render(data) {
     var idx = pointIdxAtMouse(points, event.latLng);
     var point = points[idx];
 
-    var pretty = "Time: " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL: " + point.h_msl + "<br>velF: " + point.vel_f + "<br>velD: " + point.vel_d + "<br>Glide: " + point.glide;
+    var pretty = "Time (UTC): " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL (m): " + point.h_msl + "<br>Forward Velocity (m/s): " + point.vel_f + "<br>Down Velocity (m/s): " + point.vel_d + "<br>Glide Ratio: " + point.glide;
 
-    pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lon (mouse): " + event.latLng.lng() + "<br>";
+    pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lng (mouse): " + event.latLng.lng() + "<br>";
 
     document.getElementById('currentcoordinate').innerHTML = pretty;
 
@@ -122,6 +125,7 @@ function render(data) {
     <div id="map-canvas"></div>
     <div id="currentcoordinate"></div>
     <div id="datatable"></div>
+    <div id="footer"></div>
 
  <script>
 $(document).ready(function() {
@@ -133,7 +137,10 @@ $(document).ready(function() {
     var output = Mustache.render('<table><thead><tr><th>Time</th><th>Lat</th><th>Lng</th><th>HMSL</th><th>VelF</th><th>VelD</th><th>Glide</th></tr></thead><tbody>{{#points}}<tr id="drow{{i}}"><td>{{ts}}</td><td>{{lat}}</td><td>{{lng}}</td><td>{{h_msl}}</td><td>{{vel_f}}</td><td>{{vel_d}}</td><td>{{glide}}</td></tr>{{/points}}</tbody></table>', data);
 
     document.getElementById('datatable').innerHTML = output;
-});
+  });
+
+  var footer = "Flajt 0.0.1 - " + qs.path;
+  document.getElementById('footer').innerHTML = footer;
 });
 </script>
 </body>
