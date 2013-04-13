@@ -35,6 +35,15 @@ class Recording(object):
     """This class represents a single FlySight recording.
     """
 
+    # A guess what a reasonable down velocity is when the actor is
+    # falling
+    HINT_FALLING_SURELY = 10.0 # m/s
+
+    # A guess what the down velocity will be right after exit.
+    # Note: this should not be too low, otherwise a simple
+    # bump in an aircraft or similar could interfere.
+    HINT_FALLING_START = 3.0 # m/s
+
     def __init__(self):
         self.path = None
         self.file_size = None
@@ -80,23 +89,27 @@ class Recording(object):
             if len(window) > 10:
                 del window[0]
 
-            if exit_guess_i is None and point.vel_d > 10:
+            if exit_guess_i is None and \
+                    point.vel_d > self.HINT_FALLING_SURELY:
                 exit_guess_i = j
 
-            if exit_guess_i and landing_guess_i is None and abs(sum(window)) / len(window) < 0.1:
+            if exit_guess_i and landing_guess_i is None and \
+                    abs(sum(window)) / len(window) < 0.1:
                 landing_guess_i = j
 
             self.points.append(point)
 
         if exit_guess_i is not None:
-            while self.points[exit_guess_i].vel_d >= 1:
+            while self.points[exit_guess_i].vel_d >= \
+                    self.HINT_FALLING_START:
                 exit_guess_i -= 1
 
         self.start = exit_guess_i
         self.stop = landing_guess_i
 
     def __repr__(self):
-        return '<Recording %s %s %s>' % (self.name, self.file_size, self.path)
+        return '<Recording %s %s %s>' % (self.name, self.file_size,
+                                         self.path)
 
 
 def traverse(root):
@@ -152,7 +165,8 @@ class Server(object):
                 else:
                     prob = '%s' % len(recording.points)
 
-                s += '<a href="/view?path=%s">%s</a> (%s)<br>' % (recording.path, recording.name, prob)
+                s += '<a href="/view?path=%s">%s</a> (%s)<br>' % (
+                    recording.path, recording.name, prob)
 
         elif path == '/data':
             path = query_dict['path']
@@ -183,7 +197,9 @@ class Server(object):
                         })
 
             ret = {
-                'points': points
+                'points': points,
+                'start': recording.start or 0,
+                'stop': recording.stop or len(recording.points) - 1,
                 }
 
             s += json.dumps(ret)

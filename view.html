@@ -66,11 +66,12 @@ function pointIdxAtMouse(points, latLng) {
 function render(data) {
   var points = data['points'];
 
-  var centerPos = new google.maps.LatLng(points[0]['lat'], points[0]['lng']);
+  var startPoint = points[data.start];
+  var startPos = new google.maps.LatLng(startPoint.lat, startPoint.lng);
 
   var mapOptions = {
     zoom: 14,
-    center: centerPos,
+    center: startPos,
     mapTypeId: google.maps.MapTypeId.TERRAIN
   };
 
@@ -93,12 +94,18 @@ function render(data) {
   flightPath.setMap(map);
 
   var marker = new google.maps.Marker({
-    position: centerPos,
+    position: startPos,
     map: map,
     icon: {
       path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
       scale: 3
     }
+  });
+
+  var startMarker = new google.maps.Marker({
+    position: startPos,
+    map: map,
+    title: 'Exit point (guess)'
   });
 
   google.maps.event.addListener(map, 'mousemove', function(event) {
