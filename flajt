@@ -197,7 +197,7 @@ class Server(object):
             return self.handler(environ['PATH_INFO'],
                                 environ['QUERY_STRING'])
 
-        httpd = make_server('', 8000, handler)
+        httpd = make_server('localhost', 8000, handler)
         print 'Serving on port 8000...'
         try:
             httpd.serve_forever()
