@@ -12,6 +12,11 @@ Then point your web browser to http://localhost:8000 (default).
 
 ![Screenshot](https://raw.github.com/bjornedstrom/flajt/master/doc/shot.jpg "Screenshot")
 
+# Security Warning
+
+Because of ease of development, this program will fire up a local web
+server. There are important security considerations of this design. By default, the web server will only accept connections from localhost. Do not change this! The program can read arbitrary files on disk.
+
 # Author
 
 See LICENSE for details.
