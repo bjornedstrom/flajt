@@ -114,7 +114,7 @@ def traverse(root):
         return '%s %s' % (name1, name2[:-4])
 
     records = []
-    for csv in glob.glob(data_glob):
+    for csv in sorted(glob.glob(data_glob)):
 
         rec = Recording()
         rec.path = os.path.abspath(csv)
@@ -140,10 +140,19 @@ class Server(object):
 
         s = ''
         if path == '/':
+
+            s += '<h1>Flajt</h1>'
+
             for recording in traverse(self.options.data):
                 recording.open()
 
-                s += '<a href="/view?path=%s">%s</a> (%s %s)<br>' % (recording.path, recording.name, recording.start, recording.stop)
+                prob = ''
+                if recording.start or recording.stop:
+                    prob = '<strong>%s</strong>' % len(recording.points)
+                else:
+                    prob = '%s' % len(recording.points)
+
+                s += '<a href="/view?path=%s">%s</a> (%s)<br>' % (recording.path, recording.name, prob)
 
         elif path == '/data':
             recording = Recording()
