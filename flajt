@@ -155,6 +155,15 @@ class Server(object):
                 s += '<a href="/view?path=%s">%s</a> (%s)<br>' % (recording.path, recording.name, prob)
 
         elif path == '/data':
+            path = query_dict['path']
+
+            found = False
+            for recording in traverse(self.options.data):
+                if recording.path == path:
+                    found = True
+            if not found:
+                raise AssertionError('hack hack')
+
             recording = Recording()
             recording.path = query_dict['path']
             recording.open()
