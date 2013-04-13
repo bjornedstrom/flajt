@@ -89,11 +89,20 @@ function render(data) {
 
   flightPath.setMap(map);
 
+  var marker = new google.maps.Marker({
+    position: centerPos,
+    map: map,
+    icon: {
+      path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+      scale: 3
+    }
+  });
+
   google.maps.event.addListener(map, 'mousemove', function(event) {
     var idx = pointIdxAtMouse(points, event.latLng);
     var point = points[idx];
 
-    var pretty = "Time: " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL: " + point.h_msl + "<br>velF: " + point.vel_f + "<br>velD: " + point.vel_d + "<br>Glide:" + point.glide;
+    var pretty = "Time: " + point.ts + "<br>Lat: " + point.lat + "<br>Lng: " + point.lng + "<br>hMSL: " + point.h_msl + "<br>velF: " + point.vel_f + "<br>velD: " + point.vel_d + "<br>Glide: " + point.glide;
 
     pretty += "<br><br>Lat (mouse): " + event.latLng.lat() + "<br>Lon (mouse): " + event.latLng.lng() + "<br>";
 
@@ -101,6 +110,8 @@ function render(data) {
 
     var obj = document.getElementById('drow' + idx);
     var div = document.getElementById('datatable');
+
+    marker.setPosition(new google.maps.LatLng(point.lat, point.lng));
 
     obj.scrollIntoView();
   });
