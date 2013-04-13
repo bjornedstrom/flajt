@@ -10,19 +10,26 @@ import sys
 import urlparse
 
 class Point(object):
+    """A single data point from the FlySight GPS.
+    """
+
     def __init__(self):
+        # data from GPS
         self.time = None
         self.lat = None
         self.lng = None
-        self.hmsl = None
-        self.vel_n = None
+        self.h_msl = None # height mean sea level
+        self.vel_n = None # m/s
         self.vel_e = None
         self.vel_d = None
 
+        # computed
+        self.vel_f = None
         self.glide = None
 
     def __repr__(self):
         return '<Point %s>' % (self.time,)
+
 
 class Recording(object):
     """This class represents a single FlySight recording.
@@ -34,6 +41,7 @@ class Recording(object):
         self.name = None
         self.points = []
 
+        # reasonable guess of exit and landing
         self.start = None
         self.stop = None
 
@@ -54,15 +62,19 @@ class Recording(object):
 
             point.time = fields[0] # XXX: datetime
             point.lat, point.lng = float(fields[1]), float(fields[2])
-            point.hmsl = float(fields[3])
+            point.h_msl = float(fields[3])
             point.vel_n, point.vel_e, point.vel_d = \
                 float(fields[4]), float(fields[5]), float(fields[6])
 
+            # calculate forward velocity
+            point.vel_f = math.sqrt(point.vel_e**2 + point.vel_n**2)
+
+            # calculate glide ratio
             point.glide = 0
             if point.vel_d:
-                point.glide = math.sqrt(point.vel_e**2 + point.vel_n**2) / point.vel_d
+                point.glide = point.vel_f / point.vel_d
 
-            ##
+            # guess exit and landing
             j = i - 2
             window.append(point.vel_d)
             if len(window) > 10:
@@ -73,7 +85,6 @@ class Recording(object):
 
             if exit_guess_i and landing_guess_i is None and abs(sum(window)) / len(window) < 0.1:
                 landing_guess_i = j
-            ##
 
             self.points.append(point)
 
@@ -123,6 +134,8 @@ class Server(object):
         self.options = options
 
     def handler(self, path, query):
+        """Web server request handler."""
+
         query_dict = dict(urlparse.parse_qsl(query))
 
         s = ''
@@ -146,7 +159,9 @@ class Server(object):
                             'lng': point.lng,
                             'glide': point.glide,
                             'ts': point.time,
-                            'hmsl': point.hmsl,
+                            'h_msl': point.h_msl,
+                            'vel_f': point.vel_f,
+                            'vel_d': point.vel_d,
                         })
 
             ret = {
@@ -162,6 +177,8 @@ class Server(object):
         return [s]
 
     def run(self):
+        """Start the server."""
+
         from wsgiref.simple_server import make_server
 
         def handler(environ, start_response):
@@ -172,9 +189,12 @@ class Server(object):
                                 environ['QUERY_STRING'])
 
         httpd = make_server('', 8000, handler)
-        print "Serving on port 8000..."
-        httpd.serve_forever()
-
+        print 'Serving on port 8000...'
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        print 'Shutting down...'
 
 
 def main():
