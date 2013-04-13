@@ -162,6 +162,13 @@ class Server(object):
     def __init__(self, options):
         self.options = options
 
+    def load_resource(self, name):
+        if os.path.exists(name):
+            path = name
+        else:
+            path = os.path.join('/usr/share/flajt', name)
+        return file(path).read()
+
     def handler(self, path, query):
         """Web server request handler."""
 
@@ -169,10 +176,10 @@ class Server(object):
 
         s = ''
         if path == '/':
-            s += file('web/index.html').read()
+            s += self.load_resource('web/index.html')
 
         elif path == '/view':
-            s += file('web/view.html').read()
+            s += self.load_resource('web/view.html')
 
         elif path == '/index':
             recordings = []
