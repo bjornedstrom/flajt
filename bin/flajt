@@ -221,7 +221,7 @@ class Server(object):
 
         elif path == '/view':
 
-            s += file('view.html').read()
+            s += file('web/view.html').read()
 
         return [s]
 
