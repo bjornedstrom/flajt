@@ -146,6 +146,7 @@ class Server(object):
                             'lng': point.lng,
                             'glide': point.glide,
                             'ts': point.time,
+                            'hmsl': point.hmsl,
                         })
 
             ret = {

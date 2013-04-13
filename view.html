@@ -110,7 +110,7 @@ $(document).ready(function() {
   $.getJSON('/data?path=' + qs['path'], function(data) {
     render(data);
 
-    var output = Mustache.render('<table><thead><tr><th>Time</th><th>Lat</th><th>Lng</th><th>Glide</th></tr></thead><tbody>{{#points}}<tr id="drow{{i}}"><td>{{ts}}</td><td>{{lat}}</td><td>{{lng}}</td><td>{{glide}}</td></tr>{{/points}}</tbody></table>', data);
+    var output = Mustache.render('<table><thead><tr><th>Time</th><th>Lat</th><th>Lng</th><th>HMSL</td><th>Glide</th></tr></thead><tbody>{{#points}}<tr id="drow{{i}}"><td>{{ts}}</td><td>{{lat}}</td><td>{{lng}}</td><td>{{hmsl}}</td><td>{{glide}}</td></tr>{{/points}}</tbody></table>', data);
 
     document.getElementById('datatable').innerHTML = output;
 });
