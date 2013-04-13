@@ -197,8 +197,13 @@ class Server(object):
             return self.handler(environ['PATH_INFO'],
                                 environ['QUERY_STRING'])
 
-        httpd = make_server('localhost', 8000, handler)
-        print 'Serving on port 8000...'
+        if self.options.host != 'localhost':
+            print 'WARNING'
+            print 'Only run the server on localhost!'
+            print 'This web server will read arbitrary files on disk!'
+
+        httpd = make_server(self.options.host, self.options.port, handler)
+        print 'Serving on %s:%s...' % (self.options.host, self.options.port)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
@@ -208,8 +213,14 @@ class Server(object):
 
 def main():
     parser = optparse.OptionParser()
-    parser.add_option("-d", "--data", dest="data",
-                  help="flysight data directory", metavar="PATH")
+    parser.add_option("-d", "--data", dest="data", metavar="PATH",
+                      help="flysight data directory")
+    parser.add_option("-p", "--port", dest="port", type=int,
+                      default=8000, metavar="PORT",
+                      help="port number to listen [%default]")
+    parser.add_option("-H", "--host", dest="host",
+                      default="localhost", metavar="HOST",
+                      help="host to listen [%default]")
     options, args = parser.parse_args()
 
     if not options.data:
